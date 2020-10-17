@@ -19,7 +19,7 @@ NOTES_LIST = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 class ImageAudioConverter:
     KERNEL = {"kernel_size": (4, 4, 3), "kernel_type": np.median}
     CHORD_LENGTH = 20
-    SPLIT_NUMBER = (4, 5)  # (rows, cols)
+    SPLIT_NUMBER = (16, 16)  # (rows, cols)
 
     def __init__(self, notes):
         # 1: Create a builder
@@ -58,32 +58,31 @@ class ImageAudioConverter:
     def convert(self, transform_type='split'):
         if self.file is not None:
             image = self._read_image(self.file.name)
+            image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
 
             if transform_type == 'kernel':
-                reduced_image = self.kernel_image_transform(image)
+                notes = self.kernel_image_transform(image)
             else:
-                reduced_image, velocity = self.split_image_transform(image)
+                notes, quater_length, volume = self.split_image_transform(image)
 
-            min_v = reduced_image.min()
-            max_v = reduced_image.max()
-            notes: np.ndarray = reduced_image.flatten()
-            notes = (notes - min_v) / (max_v - min_v)
+            notes /= 255
             notes *= (len(self.available_notes) - 1)
             notes = np.rint(notes).astype(int)
             notes = np.vectorize(lambda x: self.available_notes[x])(notes)
 
             # avg: 0.5 min: 0.25 3
+            # .25 2
+            min_quater_length = .25
+            max_quater_length = 2
 
-            velocity = (velocity - velocity.mean()) / (velocity.std()) + 1
-            velocity[velocity > 3] = 3
-            velocity[velocity < .25] = .25
-            velocity /= .25
-            velocity = np.rint(velocity)
-            velocity *= .25
+            quater_length /= 255
+            quater_length = quater_length * (max_quater_length - min_quater_length) + min_quater_length
 
-            print(velocity)
+            quater_length /= .25
+            quater_length = np.rint(quater_length)
+            quater_length *= .25
 
-            chords = musicgen.create_chords([(note, vel) for note, vel in zip(notes, velocity)])
+            chords = musicgen.create_chords([(note, vel) for note, vel in zip(notes, quater_length)])
 
             mf = music21.midi.translate.streamToMidiFile(chords)
             mf.open('midi.mid', 'wb')
@@ -103,10 +102,9 @@ class ImageAudioConverter:
         print("Hello")
 
     def split_image_transform(self, image):
-        array = []
-        velocity = []
-
-        laplacian = cv2.Laplacian(image, cv2.CV_64F)
+        note = []
+        tempo = []
+        volume = []
 
         d_height = image.shape[0] // ImageAudioConverter.SPLIT_NUMBER[0]
         d_width = image.shape[1] // ImageAudioConverter.SPLIT_NUMBER[1]
@@ -114,13 +112,12 @@ class ImageAudioConverter:
         for r in range(0, image.shape[0], d_height):
             for c in range(0, image.shape[1], d_width):
                 crop = image[r:r + d_height, c:c + d_width]
-                crop = np.median(crop)
 
-                velocity.append(np.median(laplacian[r:r + d_height, c:c + d_width]))
+                note.append(np.median(crop[:, :, 0]))
+                tempo.append(np.median(crop[:, :, 2]))
+                volume.append(np.median(crop[:, :, 1]))
 
-                array.append(crop)
-
-        return np.array(array), np.array(velocity)
+        return np.array(note), np.array(tempo), np.array(volume)
 
 
 if __name__ == '__main__':
