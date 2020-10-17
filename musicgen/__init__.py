@@ -37,5 +37,8 @@ def create_chords(notes_in: List[Union[Tuple[str, Union[float, int]], Tuple[str,
 
 if __name__ == '__main__':
     # os.environ['musicxmlPath'] = r'L:\Program Files\MuseScore 3\bin\MuseScore3.exe'
-    create_chords([("B", 1, 10), ("F", 1), ("A", 1), ("G", 1), ("D", 1, 10), ("C", 1.0), ("B", 1), ("E", 1)],
-                  TriadBaroqueCypher(Key('a'))).show()
+    cypher = TriadBaroqueCypher(Key('a'))
+    test = create_chords([("B", 1, 10), ("F", 1), ("A", 1), ("G#", 1), ("D", 1, 10), ("C", 1.0), ("B", 1), ("E", 1)],
+                  TriadBaroqueCypher(Key('a')))
+    print(cypher.reverse(test))
+

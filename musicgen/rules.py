@@ -194,11 +194,11 @@ class TriadBaroqueCypher(TriadBaroque):
     def next_chord(self, key: Key, previous_chord: Chord, next_note: Note) -> Chord:
         chord = super().next_chord(self.secret_key, previous_chord, next_note)
 
-        index = 0
+        index = chord.inversion()
         for note in chord.notes:
             if note.name[0] == next_note.name[0]:
                 break
-            index += 1
+            index = (index + 1) % len(chord.notes)
 
         chord.inversion(index)
 
@@ -207,11 +207,13 @@ class TriadBaroqueCypher(TriadBaroque):
     def first_chord(self, key: Key, note: Note) -> Chord:
         chord = super().first_chord(self.secret_key, note)
 
-        index = 0
+        index = chord.inversion()
         for chord_note in chord.notes:
             if chord_note.name[0] == note.name[0]:
                 break
-            index += 1
+            index = (index + 1) % len(chord.notes)
+
+        chord.inversion(index)
 
         return chord
 
@@ -219,4 +221,12 @@ class TriadBaroqueCypher(TriadBaroque):
         return super().end_cadence(self.secret_key, previous_chord)
 
     def reverse(self, input_stream: Stream) -> List[Note]:
-        pass
+        out_notes: List[Note] = []
+
+        for chord in input_stream.getElementsByClass(Chord)[:-2]:
+            note: Note = chord.bass()
+            note.quarterLength = chord.quarterLength
+            note.volume = chord.volume
+            out_notes.append(note)
+
+        return out_notes
