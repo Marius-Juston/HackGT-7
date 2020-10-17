@@ -6,8 +6,10 @@ import cv2
 import numpy as np
 import pygubu
 import skimage.measure
+from midi2audio import FluidSynth
 
 import musicgen
+import music21.midi.translate
 
 NOTES_LIST = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
@@ -17,7 +19,7 @@ NOTES_LIST = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 class ImageAudioConverter:
     KERNEL = {"kernel_size": (4, 4, 3), "kernel_type": np.median}
     CHORD_LENGTH = 20
-    SPLIT_NUMBER = (4, 5) # (rows, cols)
+    SPLIT_NUMBER = (4, 5)  # (rows, cols)
 
     def __init__(self, notes):
         # 1: Create a builder
@@ -69,9 +71,15 @@ class ImageAudioConverter:
             notes *= (len(self.available_notes) - 1)
             notes = np.rint(notes).astype(int)
             notes = np.vectorize(lambda x: self.available_notes[x])(notes)
-            # notes = notes.reshape((-1, ImageAudioConverter.CHORD_LENGTH))
+
+            # avg: 0.5 min: 0.25 3
 
             chords = musicgen.create_chords([(note, 1) for note in notes])
+
+            mf = music21.midi.translate.streamToMidiFile(chords)
+            mf.open('midi.mid', 'wb')
+            mf.write()
+            mf.close()
 
             chords.show()
 
@@ -103,4 +111,15 @@ class ImageAudioConverter:
 
 if __name__ == '__main__':
     app = ImageAudioConverter(NOTES_LIST)
-    app.run()
+
+
+    class Test:
+        def __init__(self):
+            self.name = 'C:/Users/mariu/Documents/GitHub/HackGT-7/images/Mona_Lisa.jpg'
+
+
+    app.file = Test()
+    # app.convert(transform_type='split')
+    app.convert()
+
+    # app.run()
