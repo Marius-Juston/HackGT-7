@@ -131,7 +131,7 @@ class ImageAudioConverter:
 
     def split_image_transform(self, image):
         note = []
-        tempo = []
+        quater_length = []
         volume = []
 
         d_height = image.shape[0] // ImageAudioConverter.SPLIT_NUMBER[0]
@@ -142,10 +142,10 @@ class ImageAudioConverter:
                 crop = image[r:r + d_height, c:c + d_width]
 
                 note.append(np.median(crop[:, :, 0]))
-                tempo.append(np.median(crop[:, :, 2]))
-                volume.append(np.median(crop[:, :, 1]))
+                quater_length.append(np.median(crop[:, :, 1]))
+                volume.append(np.median(crop[:, :, 2]))
 
-        return np.array(note), np.array(tempo), np.array(volume)
+        return np.array(note), np.array(quater_length), np.array(volume)
 
 
 if __name__ == '__main__':
