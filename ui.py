@@ -81,7 +81,7 @@ class ImageAudioConverter:
             quater_length *= .25
 
             volume /= 255
-            volume *= 100
+            volume *= 127
 
             chords = musicgen.create_chords([(note, vel) for note, vel in zip(notes, quater_length)])
 
@@ -95,7 +95,7 @@ class ImageAudioConverter:
         notes = notes / (len(NOTES_LIST) - 1)
         notes *= 255
 
-        volume /= 100
+        volume /= 127
         volume *= 255
 
         quater_length = (quater_length - min_quater_length) * 255 / (max_quater_length - min_quater_length)
