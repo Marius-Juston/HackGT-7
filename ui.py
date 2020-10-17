@@ -74,7 +74,13 @@ class ImageAudioConverter:
 
             # avg: 0.5 min: 0.25 3
 
-            velocity = (velocity - velocity.min()) / (velocity.max() - velocity.min()) * .5 + .25
+            velocity = (velocity - velocity.mean()) / (velocity.std()) + 1
+            velocity[velocity > 3] = 3
+            velocity[velocity < .25] = .25
+            velocity /= .25
+            velocity = np.rint(velocity)
+            velocity *= .25
+
             print(velocity)
 
             chords = musicgen.create_chords([(note, vel) for note, vel in zip(notes, velocity)])
