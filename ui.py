@@ -58,7 +58,7 @@ class ImageAudioConverter:
             notes *= (len(self.avaliable_notes) - 1)
             notes = np.rint(notes).astype(int)
             notes = np.vectorize(lambda x: self.avaliable_notes[x])(notes)
-            notes = notes.reshape((ImageAudioConverter.chord_length, -1))
+            notes = notes.reshape((-1, ImageAudioConverter.chord_length))
 
         print("Convert")
 
