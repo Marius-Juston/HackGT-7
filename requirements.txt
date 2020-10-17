@@ -2,4 +2,4 @@ pygubu==0.10.3
 scikit_image==0.16.2
 music21==6.1.0
 numpy==1.19.2
-opencv==4.0.1
+opencv-python==4.0.1
