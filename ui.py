@@ -87,6 +87,8 @@ class ImageAudioConverter:
 
             self.decode_music(notes, quater_length, volume)
 
+            chords.write("midi", "out.mid")
+            chords.write("xml", "out.xml")
 
         print("Convert")
 
