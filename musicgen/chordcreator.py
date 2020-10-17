@@ -12,23 +12,21 @@ class ChordCreator:
     def __init__(self, inputNotes: List[Note]):
         self.inputNotes: List[Note] = inputNotes
 
-        stream: Stream = Stream()
+        self.inputStream: Stream = Stream()
         for note in inputNotes:
-            stream.append(note)
-        self.key: Key = stream.analyze('key')
+            self.inputStream.append(note)
+        self.key: Key = self.inputStream.analyze('key')
 
         print(
             f"Guessed key: {self.key}, Confidence: {self.key.correlationCoefficient}, Other possible keys: {self.key.alternateInterpretations}")
 
     def chordify(self, rules: Rules = TriadBaroque()) -> Stream:
         stream = Stream()
-        prev_chord: Chord = self.first_chord()
+        prev_chord: Chord = rules.first_chord(self.key, self.inputNotes[0])
         stream.append(prev_chord)
         for note in self.inputNotes[1:]:
-            stream.append(rules.next_chord(self.key, prev_chord, note))
+            prev_chord = rules.next_chord(self.key, prev_chord, note)
+            stream.append(prev_chord)
+        stream.append(rules.end_cadence(self.key, prev_chord))
 
-        return stream
-
-    def first_chord(self) -> Chord:
-
-        pass
+        return stream.flat
