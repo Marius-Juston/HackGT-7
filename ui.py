@@ -82,6 +82,8 @@ class ImageAudioConverter:
             quater_length = np.rint(quater_length)
             quater_length *= .25
 
+            volume /= 255
+
             chords = musicgen.create_chords([(note, vel) for note, vel in zip(notes, quater_length)])
 
             mf = music21.midi.translate.streamToMidiFile(chords)
