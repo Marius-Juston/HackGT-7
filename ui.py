@@ -7,14 +7,19 @@ import numpy as np
 import pygubu
 import skimage.measure
 
+NOTES_LIST = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+
 
 # C:\Users\mariu\Anaconda3\envs\HackGT-7\Scripts\pygubu-designer.exe
 
 class ImageAudioConverter:
     KERNEL = {"kernel_size": (4, 4, 3), "kernel_type": np.median}
+    chord_length = 20
 
-    def __init__(self):
+    def __init__(self, notes):
         # 1: Create a builder
+        self.notes = notes
+        self.avaliable_notes = notes
         self.builder = builder = pygubu.Builder()
 
         # 2: Load an ui file
@@ -46,7 +51,14 @@ class ImageAudioConverter:
             reduced_image = skimage.measure.block_reduce(image, ImageAudioConverter.KERNEL['kernel_size'],
                                                          ImageAudioConverter.KERNEL['kernel_type'])
 
-            print(reduced_image)
+            min_v = reduced_image.min()
+            max_v = reduced_image.max()
+            notes: np.ndarray = reduced_image.flatten()
+            notes = (notes - min_v) / (max_v - min_v)
+            notes *= (len(self.avaliable_notes) - 1)
+            notes = np.rint(notes).astype(int)
+            notes = np.vectorize(lambda x: self.avaliable_notes[x])(notes)
+            notes = notes.reshape((ImageAudioConverter.chord_length, -1))
 
         print("Convert")
 
