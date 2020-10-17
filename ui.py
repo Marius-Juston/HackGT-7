@@ -62,7 +62,7 @@ class ImageAudioConverter:
             if transform_type == 'kernel':
                 reduced_image = self.kernel_image_transform(image)
             else:
-                reduced_image = self.split_image_transform(image)
+                reduced_image, velocity = self.split_image_transform(image)
 
             min_v = reduced_image.min()
             max_v = reduced_image.max()
@@ -74,7 +74,10 @@ class ImageAudioConverter:
 
             # avg: 0.5 min: 0.25 3
 
-            chords = musicgen.create_chords([(note, 1) for note in notes])
+            velocity = (velocity - velocity.min()) / (velocity.max() - velocity.min()) * .5 + .25
+            print(velocity)
+
+            chords = musicgen.create_chords([(note, vel) for note, vel in zip(notes, velocity)])
 
             mf = music21.midi.translate.streamToMidiFile(chords)
             mf.open('midi.mid', 'wb')
@@ -95,6 +98,9 @@ class ImageAudioConverter:
 
     def split_image_transform(self, image):
         array = []
+        velocity = []
+
+        laplacian = cv2.Laplacian(image, cv2.CV_64F)
 
         d_height = image.shape[0] // ImageAudioConverter.SPLIT_NUMBER[0]
         d_width = image.shape[1] // ImageAudioConverter.SPLIT_NUMBER[1]
@@ -104,9 +110,11 @@ class ImageAudioConverter:
                 crop = image[r:r + d_height, c:c + d_width]
                 crop = np.median(crop)
 
+                velocity.append(np.median(laplacian[r:r + d_height, c:c + d_width]))
+
                 array.append(crop)
 
-        return np.array(array)
+        return np.array(array), np.array(velocity)
 
 
 if __name__ == '__main__':
