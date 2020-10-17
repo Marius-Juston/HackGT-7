@@ -12,6 +12,8 @@ import skimage.measure
 import musicgen
 
 NOTES_LIST = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+min_quater_length = .25
+max_quater_length = 2
 
 
 # C:\Users\mariu\Anaconda3\envs\HackGT-7\Scripts\pygubu-designer.exe
@@ -72,8 +74,6 @@ class ImageAudioConverter:
 
             # avg: 0.5 min: 0.25 3
             # .25 2
-            min_quater_length = .25
-            max_quater_length = 2
 
             quater_length /= 255
             quater_length = quater_length * (max_quater_length - min_quater_length) + min_quater_length
@@ -83,8 +83,11 @@ class ImageAudioConverter:
             quater_length *= .25
 
             volume /= 255
+            volume *= 100
 
             chords = musicgen.create_chords([(note, vel) for note, vel in zip(notes, quater_length)])
+
+            self.decode_music(notes, quater_length, volume)
 
             mf = music21.midi.translate.streamToMidiFile(chords)
             mf.open('midi.mid', 'wb')
@@ -96,6 +99,29 @@ class ImageAudioConverter:
             print(notes, notes.shape)
 
         print("Convert")
+
+    def decode_music(self, notes, quater_length, volume):
+        notes = np.array([NOTES_LIST.index(note) for note in notes])
+        notes = notes / (len(NOTES_LIST) - 1)
+        notes *= 255
+
+        volume /= 100
+        volume *= 255
+
+        quater_length = (quater_length - min_quater_length) * 255 / (max_quater_length - min_quater_length)
+
+        shape = (ImageAudioConverter.SPLIT_NUMBER[0] + 1, ImageAudioConverter.SPLIT_NUMBER[1] + 1, 1)
+
+        notes = notes.reshape(shape)
+        quater_length = quater_length.reshape(shape)
+        volume = volume.reshape(shape)
+
+        new_image = np.concatenate((notes, quater_length, volume), axis=2)
+        new_image = new_image.astype(np.uint8)
+
+        cv2.imwrite("ouput.png", cv2.cvtColor(new_image, cv2.COLOR_HLS2BGR))
+
+        print(new_image)
 
     def play_music(self):
         print("Play music")
