@@ -7,6 +7,8 @@ import numpy as np
 import pygubu
 import skimage.measure
 
+import musicgen
+
 NOTES_LIST = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
 
