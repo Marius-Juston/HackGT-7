@@ -17,12 +17,12 @@ NOTES_LIST = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 class ImageAudioConverter:
     KERNEL = {"kernel_size": (4, 4, 3), "kernel_type": np.median}
     CHORD_LENGTH = 20
-    SPLIT_NUMBER = (4, 5)
+    SPLIT_NUMBER = (4, 5) # (rows, cols)
 
     def __init__(self, notes):
         # 1: Create a builder
         self.notes = notes
-        self.avaliable_notes = notes
+        self.available_notes = notes
         self.builder = builder = pygubu.Builder()
 
         # 2: Load an ui file
@@ -42,6 +42,8 @@ class ImageAudioConverter:
 
         self.file: TextIOWrapper = askopenfile(initialdir=current_dir, filetypes=(('jpef', "*.jpg"), ("png", "*.png")))
 
+        self.builder.tkvariables['file_location_var'].set(os.path.basename(self.file.name))
+
         print(self.file.name)
 
     def _read_image(self, img_loc):
@@ -51,7 +53,7 @@ class ImageAudioConverter:
         return skimage.measure.block_reduce(image, ImageAudioConverter.KERNEL['kernel_size'],
                                             ImageAudioConverter.KERNEL['kernel_type'])
 
-    def convert(self, transform_type='kernel'):
+    def convert(self, transform_type='split'):
         if self.file is not None:
             image = self._read_image(self.file.name)
 
@@ -64,13 +66,15 @@ class ImageAudioConverter:
             max_v = reduced_image.max()
             notes: np.ndarray = reduced_image.flatten()
             notes = (notes - min_v) / (max_v - min_v)
-            notes *= (len(self.avaliable_notes) - 1)
+            notes *= (len(self.available_notes) - 1)
             notes = np.rint(notes).astype(int)
-            notes = np.vectorize(lambda x: self.avaliable_notes[x])(notes)
+            notes = np.vectorize(lambda x: self.available_notes[x])(notes)
             # notes = notes.reshape((-1, ImageAudioConverter.CHORD_LENGTH))
 
             chords = [musicgen.create_chords([(note, 1) for note in notes[i:i + ImageAudioConverter.CHORD_LENGTH]])
                       for i in range(0, len(notes), ImageAudioConverter.CHORD_LENGTH)]
+
+            print(notes, notes.shape)
 
         print("Convert")
 
@@ -97,5 +101,5 @@ class ImageAudioConverter:
 
 
 if __name__ == '__main__':
-    app = ImageAudioConverter()
+    app = ImageAudioConverter(NOTES_LIST)
     app.run()
