@@ -3,13 +3,13 @@ from io import TextIOWrapper
 from tkinter.filedialog import askopenfile
 
 import cv2
+import music21
+import music21.midi.translate
 import numpy as np
 import pygubu
 import skimage.measure
-from midi2audio import FluidSynth
 
 import musicgen
-import music21.midi.translate
 
 NOTES_LIST = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
