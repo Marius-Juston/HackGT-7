@@ -16,7 +16,8 @@ NOTES_LIST = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 
 class ImageAudioConverter:
     KERNEL = {"kernel_size": (4, 4, 3), "kernel_type": np.median}
-    chord_length = 20
+    CHORD_LENGTH = 20
+    SPLIT_NUMBER = (4, 5)
 
     def __init__(self, notes):
         # 1: Create a builder
@@ -46,12 +47,18 @@ class ImageAudioConverter:
     def _read_image(self, img_loc):
         return cv2.imread(img_loc)
 
-    def convert(self):
+    def kernel_image_transform(self, image):
+        return skimage.measure.block_reduce(image, ImageAudioConverter.KERNEL['kernel_size'],
+                                            ImageAudioConverter.KERNEL['kernel_type'])
+
+    def convert(self, transform_type='kernel'):
         if self.file is not None:
             image = self._read_image(self.file.name)
 
-            reduced_image = skimage.measure.block_reduce(image, ImageAudioConverter.KERNEL['kernel_size'],
-                                                         ImageAudioConverter.KERNEL['kernel_type'])
+            if transform_type == 'kernel':
+                reduced_image = self.kernel_image_transform(image)
+            else:
+                reduced_image = self.split_image_transform(image)
 
             min_v = reduced_image.min()
             max_v = reduced_image.max()
@@ -60,7 +67,7 @@ class ImageAudioConverter:
             notes *= (len(self.avaliable_notes) - 1)
             notes = np.rint(notes).astype(int)
             notes = np.vectorize(lambda x: self.avaliable_notes[x])(notes)
-            notes = notes.reshape((-1, ImageAudioConverter.chord_length))
+            notes = notes.reshape((-1, ImageAudioConverter.CHORD_LENGTH))
 
             chords = [musicgen.create_chords([(note, 1) for note in group]) for group in notes]
 
@@ -71,6 +78,10 @@ class ImageAudioConverter:
 
     def validate_location(self):
         print("Hello")
+
+    def split_image_transform(self, image):
+        for r in range(0, image.shape[0], image.shape[0] // ImageAudioConverter):
+            pass
 
 
 if __name__ == '__main__':
