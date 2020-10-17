@@ -67,9 +67,10 @@ class ImageAudioConverter:
             notes *= (len(self.avaliable_notes) - 1)
             notes = np.rint(notes).astype(int)
             notes = np.vectorize(lambda x: self.avaliable_notes[x])(notes)
-            notes = notes.reshape((-1, ImageAudioConverter.CHORD_LENGTH))
+            # notes = notes.reshape((-1, ImageAudioConverter.CHORD_LENGTH))
 
-            chords = [musicgen.create_chords([(note, 1) for note in group]) for group in notes]
+            chords = [musicgen.create_chords([(note, 1) for note in notes[i:i + ImageAudioConverter.CHORD_LENGTH]])
+                      for i in range(0, len(notes), ImageAudioConverter.CHORD_LENGTH)]
 
         print("Convert")
 
