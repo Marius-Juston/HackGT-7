@@ -51,6 +51,10 @@ class Rules(ABC):
 
 class TriadBaroque(Rules):
     def __init__(self):
+        """
+        This Rules object will generate Chords based on the chord progression rules in place in the Baroque Era of
+        music. The original note isn't preserved in any identifiable way.
+        """
         super().__init__()
         self.chord_degrees = [
             [1, 3, 5],
@@ -63,22 +67,22 @@ class TriadBaroque(Rules):
         ]
         self.next_degree: List[List[int]] = [
             [5, 6, 4, 1, 2, 7, 3],  # 1 2 3 4 5 6 7
-            [5, 4, 7, 2, 1],        # 1 2 3 5 5 6 7
-            [6, 1, 4, 2, 5, 3],     # 1 2 3 4 5 6 7
-            [5, 2, 7, 1, 4],        # 1 2 3 4 5 6 7
-            [1, 5, 6, 4, 2, 7],     # 1 2 3 4 5 6 7
-            [4, 2, 6, 1, 5],        # 1 2 3 4 5 6 7
-            [1, 5, 7, 6, 2, 4]      # 1 2 3 4 5 6 7
+            [5, 4, 7, 2, 1],  # 1 2 3 5 5 6 7
+            [6, 1, 4, 2, 5, 3],  # 1 2 3 4 5 6 7
+            [5, 2, 7, 1, 4],  # 1 2 3 4 5 6 7
+            [1, 5, 6, 4, 2, 7],  # 1 2 3 4 5 6 7
+            [4, 2, 6, 1, 5],  # 1 2 3 4 5 6 7
+            [1, 5, 7, 6, 2, 4]  # 1 2 3 4 5 6 7
         ]
         self.types: Dict[str, Dict[str, List[int]]] = {
-            "major" : {
-                "major" : [1, 4, 5],
-                "minor" : [2, 3, 6],
+            "major": {
+                "major": [1, 4, 5],
+                "minor": [2, 3, 6],
                 "diminished": [7]
             },
-            "minor" : {
-                "major" : [2, 3, 5, 6],
-                "minor" : [1, 4],
+            "minor": {
+                "major": [2, 3, 5, 6],
+                "minor": [1, 4],
                 "diminished": [7]
             }
         }
@@ -102,7 +106,8 @@ class TriadBaroque(Rules):
         next_degree = -1
         hold = -1
         for chord_possibility in next_chord_possibilities:
-            if next_note_degree in self.chord_degrees[chord_possibility - 1] and not (key.mode == "minor" and chord_possibility == 7):
+            if next_note_degree in self.chord_degrees[chord_possibility - 1] and not (
+                    key.mode == "minor" and chord_possibility == 7):
                 if chord_possibility == previous_degree:
                     hold = chord_possibility
                 else:
@@ -123,6 +128,8 @@ class TriadBaroque(Rules):
         # print(next_note, next_degree, chord_builder(key.pitchFromDegree(next_degree)))
         chord = chord_builder(key.pitchFromDegree(next_degree))
         chord.quarterLength = next_note.quarterLength
+        chord.volume = next_note.volume
+
 
         return chord
 
@@ -131,23 +138,25 @@ class TriadBaroque(Rules):
         tonic = key.tonic
         bass = tonic
         chord_builder = self.build_major_triad
-        if key.getScaleDegreeFromPitch(tonic) in self.chord_degrees[0]:
+        degree = key.getScaleDegreeFromPitch(note)
+        if degree in self.chord_degrees[0]:
             bass = tonic
             if key.mode == "minor":
                 chord_builder = self.build_minor_triad
-        elif key.getScaleDegreeFromPitch(tonic.transpose("P5")) in self.chord_degrees[4]:
+        elif degree in self.chord_degrees[4]:
             bass = tonic.transpose("P5")
-        elif key.getScaleDegreeFromPitch(tonic.transpose("P4")) in self.chord_degrees[3]:
+        elif degree in self.chord_degrees[3]:
             bass = tonic.transpose("P4")
             if key.mode == "minor":
                 chord_builder = self.build_minor_triad
-        elif key.getScaleDegreeFromPitch(tonic.transpose("M2")) in self.chord_degrees[1]:
+        elif degree in self.chord_degrees[1]:
             bass = tonic.transpose("M2")
             if key.mode == "major":
                 chord_builder = self.build_major_triad
 
         chord = chord_builder(bass)
         chord.quarterLength = note.quarterLength
+        chord.volume = note.volume
 
         return chord
 
@@ -169,3 +178,45 @@ class TriadBaroque(Rules):
             out.append(chord)
 
         return out
+
+
+class TriadBaroqueCypher(TriadBaroque):
+    def __init__(self, secret_key: Key):
+        """
+        Functionally the same to the TriadBaroque Rules, with the only exception being that the input note is the bass
+        of the chord. This chord creation is reversible. The cadence doesn't encode information and is used to make the
+        music sound better.
+        :param secret_key: The Key that the chords will fit to. This is to make sure the encoding process is reversible.
+        """
+        super().__init__()
+        self.secret_key = secret_key
+
+    def next_chord(self, key: Key, previous_chord: Chord, next_note: Note) -> Chord:
+        chord = super().next_chord(self.secret_key, previous_chord, next_note)
+
+        index = 0
+        for note in chord.notes:
+            if note.name[0] == next_note.name[0]:
+                break
+            index += 1
+
+        chord.inversion(index)
+
+        return chord
+
+    def first_chord(self, key: Key, note: Note) -> Chord:
+        chord = super().first_chord(self.secret_key, note)
+
+        index = 0
+        for chord_note in chord.notes:
+            if chord_note.name[0] == note.name[0]:
+                break
+            index += 1
+
+        return chord
+
+    def end_cadence(self, key: Key, previous_chord: Chord) -> Stream:
+        return super().end_cadence(self.secret_key, previous_chord)
+
+    def reverse(self, input_stream: Stream) -> List[Note]:
+        pass
