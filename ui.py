@@ -80,8 +80,19 @@ class ImageAudioConverter:
         print("Hello")
 
     def split_image_transform(self, image):
-        for r in range(0, image.shape[0], image.shape[0] // ImageAudioConverter):
-            pass
+        array = []
+
+        d_height = image.shape[0] // ImageAudioConverter.SPLIT_NUMBER[0]
+        d_width = image.shape[1] // ImageAudioConverter.SPLIT_NUMBER[1]
+
+        for r in range(0, image.shape[0], d_height):
+            for c in range(0, image.shape[1], d_width):
+                crop = image[r:r + d_height, c:c + d_width]
+                crop = np.median(crop)
+
+                array.append(crop)
+
+        return np.array(array)
 
 
 if __name__ == '__main__':
