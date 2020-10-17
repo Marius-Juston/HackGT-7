@@ -1,11 +1,17 @@
+import os
+from io import TextIOWrapper
 from tkinter.filedialog import askopenfile
 
+import cv2
+import numpy as np
 import pygubu
+import skimage.measure
 
 
 # C:\Users\mariu\Anaconda3\envs\HackGT-7\Scripts\pygubu-designer.exe
 
 class ImageAudioConverter:
+    KERNEL = {"kernel_size": (4, 4, 3), "kernel_type": np.median}
 
     def __init__(self):
         # 1: Create a builder
@@ -18,14 +24,30 @@ class ImageAudioConverter:
         self.mainwindow = builder.get_object('mainwindow')
 
         builder.connect_callbacks(self)
+        self.file = None
 
     def run(self):
         self.mainwindow.mainloop()
 
     def select_file(self):
-        file = askopenfile()
+        current_dir = os.getcwd()
+
+        self.file: TextIOWrapper = askopenfile(initialdir=current_dir, filetypes=(('jpef', "*.jpg"), ("png", "*.png")))
+
+        print(self.file.name)
+
+    def _read_image(self, img_loc):
+        return cv2.imread(img_loc)
 
     def convert(self):
+        if self.file is not None:
+            image = self._read_image(self.file.name)
+
+            reduced_image = skimage.measure.block_reduce(image, ImageAudioConverter.KERNEL['kernel_size'],
+                                                         ImageAudioConverter.KERNEL['kernel_type'])
+
+            print(reduced_image)
+
         print("Convert")
 
     def play_music(self):
