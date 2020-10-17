@@ -22,7 +22,7 @@ class ImageAudioConverter:
     def __init__(self, notes):
         # 1: Create a builder
         self.notes = notes
-        self.avaliable_notes = notes
+        self.available_notes = notes
         self.builder = builder = pygubu.Builder()
 
         # 2: Load an ui file
@@ -40,7 +40,11 @@ class ImageAudioConverter:
     def select_file(self):
         current_dir = os.getcwd()
 
+        # open file selection dialog
         self.file: TextIOWrapper = askopenfile(initialdir=current_dir, filetypes=(('jpef', "*.jpg"), ("png", "*.png")))
+
+        # update UI to show file name
+        self.builder.tkvariables['file_location_var'].set(os.path.basename(self.file.name));
 
         print(self.file.name)
 
@@ -64,9 +68,9 @@ class ImageAudioConverter:
             max_v = reduced_image.max()
             notes: np.ndarray = reduced_image.flatten()
             notes = (notes - min_v) / (max_v - min_v)
-            notes *= (len(self.avaliable_notes) - 1)
+            notes *= (len(self.available_notes) - 1)
             notes = np.rint(notes).astype(int)
-            notes = np.vectorize(lambda x: self.avaliable_notes[x])(notes)
+            notes = np.vectorize(lambda x: self.available_notes[x])(notes)
             notes = notes.reshape((-1, ImageAudioConverter.CHORD_LENGTH))
 
             chords = [musicgen.create_chords([(note, 1) for note in group]) for group in notes]
@@ -85,5 +89,5 @@ class ImageAudioConverter:
 
 
 if __name__ == '__main__':
-    app = ImageAudioConverter()
+    app = ImageAudioConverter(NOTES_LIST)
     app.run()
