@@ -1,4 +1,5 @@
-# helloworld.py
+from tkinter.filedialog import askopenfile
+
 import pygubu
 
 
@@ -16,8 +17,22 @@ class ImageAudioConverter:
         # 3: Create the mainwindow
         self.mainwindow = builder.get_object('mainwindow')
 
+        builder.connect_callbacks(self)
+
     def run(self):
         self.mainwindow.mainloop()
+
+    def select_file(self):
+        file = askopenfile()
+
+    def convert(self):
+        print("Convert")
+
+    def play_music(self):
+        print("Play music")
+
+    def validate_location(self):
+        print("Hello")
 
 
 if __name__ == '__main__':
