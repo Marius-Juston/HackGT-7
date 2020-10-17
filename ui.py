@@ -3,8 +3,6 @@ from io import TextIOWrapper
 from tkinter.filedialog import askopenfile
 
 import cv2
-import music21
-import music21.midi.translate
 import numpy as np
 import pygubu
 import skimage.measure
@@ -89,14 +87,6 @@ class ImageAudioConverter:
 
             self.decode_music(notes, quater_length, volume)
 
-            mf = music21.midi.translate.streamToMidiFile(chords)
-            mf.open('midi.mid', 'wb')
-            mf.write()
-            mf.close()
-
-            chords.show()
-
-            print(notes, notes.shape)
 
         print("Convert")
 
