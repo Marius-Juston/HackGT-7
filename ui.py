@@ -60,6 +60,8 @@ class ImageAudioConverter:
             notes = np.vectorize(lambda x: self.avaliable_notes[x])(notes)
             notes = notes.reshape((-1, ImageAudioConverter.chord_length))
 
+            chords = [musicgen.create_chords([(note, 1) for note in group]) for group in notes]
+
         print("Convert")
 
     def play_music(self):
