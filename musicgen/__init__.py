@@ -4,9 +4,19 @@ from music21.note import Note
 from music21.stream import Stream
 
 from musicgen.chordcreator import ChordCreator
+from musicgen.rules import Rules, TriadBaroque
 
 
-def create_chords(notes_in: List[Tuple[str, Union[float, int]]]) -> Stream:
+def create_chords(notes_in: List[Tuple[str, Union[float, int]]], ruleset: Rules = TriadBaroque) -> Stream:
+    """
+    Creates the Stream of Chords made with the input notes. Notes are represented as (name, quarterLength) pairs.
+
+    The key is guessed.
+    :param notes_in: A list of note identifiers that will be converted into
+    :param ruleset: A Rules object that determines how the Chords are fitted. Defaults to a Rules object that generates
+    triads based on the rules from the Baroque period.
+    :return: A Stream containing the generated Chords.
+    """
     notes_out: List[Note] = []
     for note in notes_in:
         note_out = Note(note[0])
@@ -16,7 +26,7 @@ def create_chords(notes_in: List[Tuple[str, Union[float, int]]]) -> Stream:
     chord_creator = ChordCreator(notes_out)
     # chord_creator.inputStream.show()
     # chord_creator.chordify().show()
-    return chord_creator.chordify()
+    return chord_creator.chordify(ruleset)
 
 
 if __name__ == '__main__':

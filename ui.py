@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     class Test:
         def __init__(self):
-            self.name = 'C:/Users/mariu/Documents/GitHub/HackGT-7/images/Mona_Lisa.jpg'
+            self.name = 'images/Mona_Lisa.jpg'
 
 
     app.file = Test()

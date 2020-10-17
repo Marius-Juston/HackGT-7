@@ -121,8 +121,10 @@ class TriadBaroque(Rules):
             chord_builder = self.build_diminished_triad
 
         # print(next_note, next_degree, chord_builder(key.pitchFromDegree(next_degree)))
+        chord = chord_builder(key.pitchFromDegree(next_degree))
+        chord.quarterLength = next_note.quarterLength
 
-        return chord_builder(key.pitchFromDegree(next_degree))
+        return chord
 
     def first_chord(self, key: Key, note: Note) -> Chord:
         # Take preference for I, then go to V, IV, and II
@@ -144,7 +146,10 @@ class TriadBaroque(Rules):
             if key.mode == "major":
                 chord_builder = self.build_major_triad
 
-        return chord_builder(bass)
+        chord = chord_builder(bass)
+        chord.quarterLength = note.quarterLength
+
+        return chord
 
     def end_cadence(self, key: Key, previous_chord: Chord) -> Stream:
         # Cadence preference: 1-5-1, 2-5-6, 3-6-4-1, 4-5-1, 5-5-1, 6-4-1, 7-1
@@ -160,7 +165,7 @@ class TriadBaroque(Rules):
             elif chord_degree in self.types[key.mode]["diminished"]:
                 chord_builder = self.build_diminished_triad
             chord = chord_builder(key.pitchFromDegree(chord_degree))
-            chord.quarterLength = 2 * previous_chord.quarterLength
+            chord.quarterLength = 2
             out.append(chord)
 
         return out

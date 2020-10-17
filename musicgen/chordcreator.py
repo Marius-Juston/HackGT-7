@@ -10,6 +10,11 @@ from musicgen.rules import Rules, TriadBaroque
 
 class ChordCreator:
     def __init__(self, inputNotes: List[Note]):
+        """
+        ChordCreator is a utility class that can supply a Rules instance with a key and notes to create chords out of.
+
+        :param inputNotes: A list of music21.note.Note objects. Chords get fitted to these Notes.
+        """
         self.inputNotes: List[Note] = inputNotes
 
         self.inputStream: Stream = Stream()
@@ -21,6 +26,12 @@ class ChordCreator:
             f"Guessed key: {self.key}, Confidence: {self.key.correlationCoefficient}, Other possible keys: {self.key.alternateInterpretations}")
 
     def chordify(self, rules: Rules = TriadBaroque()) -> Stream:
+        """
+        Run the process that creates the Chords. Chords are determined completely by a Rules object.
+        :param rules: A Rules object that determines how the Chords are fitted. Defaults to a Rules object that
+        generates triads based on the rules from the Baroque period.
+        :return: A flat music21.stream.Stream that contains the Chords.
+        """
         stream = Stream()
         prev_chord: Chord = rules.first_chord(self.key, self.inputNotes[0])
         stream.append(prev_chord)
