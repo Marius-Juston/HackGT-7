@@ -1,1 +1,4 @@
+music21==6.1.0
+matplotlib==3.3.2
+numpy==1.19.2
 pygubu==0.10.3
