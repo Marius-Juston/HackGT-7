@@ -7,7 +7,7 @@ from musicgen.chordcreator import ChordCreator
 from musicgen.rules import Rules, TriadBaroque
 
 
-def create_chords(notes_in: List[Tuple[str, Union[float, int]]], ruleset: Rules = TriadBaroque) -> Stream:
+def create_chords(notes_in: List[Tuple[str, Union[float, int]]], ruleset: Rules = TriadBaroque()) -> Stream:
     """
     Creates the Stream of Chords made with the input notes. Notes are represented as (name, quarterLength) pairs.
 
