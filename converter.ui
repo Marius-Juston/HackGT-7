@@ -17,7 +17,7 @@
           <property name="side">top</property>
         </layout>
         <child>
-          <object class="ttk.Label" id="label_4">
+          <object class="ttk.Label" id="title_desc">
             <property name="compound">top</property>
             <property name="cursor">arrow</property>
             <property name="takefocus">false</property>
@@ -101,6 +101,75 @@
                   <property name="column">1</property>
                   <property name="propagate">True</property>
                   <property name="row">0</property>
+                </layout>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child>
+          <object class="ttk.Frame" id="frame_2_3">
+            <property name="height">40</property>
+            <property name="width">200</property>
+            <layout manager="pack">
+              <property name="ipadx">5</property>
+              <property name="padx">5</property>
+              <property name="pady">5</property>
+              <property name="propagate">True</property>
+              <property name="side">top</property>
+            </layout>
+            <child>
+              <object class="ttk.Label" id="row_size_label">
+                <property name="text" translatable="yes">row size</property>
+                <layout manager="pack">
+                  <property name="propagate">True</property>
+                  <property name="side">left</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="ttk.Spinbox" id="row_size_spinbox">
+                <property name="text" translatable="yes">64</property>
+                <property name="textvariable">int:row_size</property>
+                <layout manager="pack">
+                  <property name="propagate">True</property>
+                  <property name="side">left</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="ttk.Separator" id="separator_1_2">
+                <property name="orient">horizontal</property>
+                <layout manager="pack">
+                  <property name="propagate">True</property>
+                  <property name="side">left</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="ttk.Label" id="col_size_label">
+                <property name="text" translatable="yes">col size</property>
+                <layout manager="pack">
+                  <property name="propagate">True</property>
+                  <property name="side">left</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="ttk.Spinbox" id="col_size_spinbox">
+                <property name="text" translatable="yes">64</property>
+                <property name="textvariable">int:col_size</property>
+                <layout manager="pack">
+                  <property name="propagate">True</property>
+                  <property name="side">left</property>
+                </layout>
+              </object>
+            </child>
+            <child>
+              <object class="ttk.Label" id="default_size">
+                <property name="text" translatable="yes">(default: 64)</property>
+                <layout manager="pack">
+                  <property name="propagate">True</property>
+                  <property name="side">top</property>
                 </layout>
               </object>
             </child>
