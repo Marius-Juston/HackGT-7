@@ -57,6 +57,12 @@ class ImageAudioConverter:
         return skimage.measure.block_reduce(image, ImageAudioConverter.KERNEL['kernel_size'],
                                             ImageAudioConverter.KERNEL['kernel_type'])
 
+    def convert(self):
+        if self.file.name.endswith('jpg') or self.file.name.endswith('png'):
+            self.convert_img_to_music()
+        else:
+            self.convert_music_to_img()
+
     def convert_img_to_music(self, transform_type='split', cypher=CYPHER):
         if self.file is not None:
             image = self._read_image(self.file.name)
