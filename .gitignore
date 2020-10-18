@@ -152,3 +152,8 @@ dmypy.json
 out/
 .idea/misc.xml
 .idea/HackGT-7.iml
+
+images/
+output.png
+out.mid
+out.xml
