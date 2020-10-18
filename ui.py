@@ -44,7 +44,7 @@ class ImageAudioConverter:
     def select_file(self):
         current_dir = os.getcwd()
 
-        self.file: TextIOWrapper = askopenfile(initialdir=current_dir, filetypes=(('jpef', "*.jpg"), ("png", "*.png")))
+        self.file: TextIOWrapper = askopenfile(initialdir=current_dir, filetypes=(('Images', "*.jpg;*.png"),))
 
         self.builder.tkvariables['file_location_var'].set(os.path.basename(self.file.name))
 
