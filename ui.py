@@ -6,13 +6,14 @@ import cv2
 import numpy as np
 import pygubu
 import skimage.measure
+from music21.note import Note
 
 import musicgen
 from music21.key import Key
 from keys import *
 
 KEY = A_MINOR
-NOTES_LIST = KEY.getPitches()
+NOTES_LIST = list(map(lambda note: note.name[0], KEY.getPitches()))
 CYPHER = musicgen.rules.TriadBaroqueCypher(KEY)
 min_quarter_length = .25
 max_quarter_length = 2
@@ -111,7 +112,7 @@ class ImageAudioConverter:
         self.decode_music(np.asarray(notes), np.asarray(quarter_lengths), np.asarray(volumes))
 
     def decode_music(self, notes, quarter_lengths, volumes):
-        notes = np.array([NOTES_LIST.index(note) for note in notes])
+        notes = np.array([NOTES_LIST.index(note[0]) for note in notes])
         notes = notes / (len(NOTES_LIST) - 1)
         notes *= 255
 
