@@ -15,12 +15,12 @@ class ChordCreator:
 
         :param input_notes: A list of music21.note.Note objects. Chords get fitted to these Notes.
         """
-        self.inputNotes: List[Note] = input_notes
+        self.input_notes: List[Note] = input_notes
 
-        self.inputStream: Stream = Stream()
+        self.input_stream: Stream = Stream()
         for note in input_notes:
-            self.inputStream.append(note)
-        self.key: Key = self.inputStream.analyze('key')
+            self.input_stream.append(note)
+        self.key: Key = self.input_stream.analyze('key')
 
         # print(
         #     f"Guessed key: {self.key}, Confidence: {self.key.correlationCoefficient}, Other possible keys: {self.key.alternateInterpretations}")
@@ -33,9 +33,9 @@ class ChordCreator:
         :return: A flat music21.stream.Stream that contains the Chords.
         """
         stream = Stream()
-        prev_chord: Chord = rules.first_chord(self.key, self.inputNotes[0])
+        prev_chord: Chord = rules.first_chord(self.key, self.input_notes[0])
         stream.append(prev_chord)
-        for note in self.inputNotes[1:]:
+        for note in self.input_notes[1:]:
             prev_chord = rules.next_chord(self.key, prev_chord, note)
             stream.append(prev_chord)
         stream.append(rules.end_cadence(self.key, prev_chord))
