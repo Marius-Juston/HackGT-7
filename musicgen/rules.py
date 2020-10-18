@@ -9,22 +9,37 @@ from music21.stream import Stream
 
 class Rules(ABC):
     def __init__(self):
+        """
+        Rules determine how chords are generated.
+        """
         pass
 
     @abstractmethod
     def next_chord(self, key: Key, previous_chord: Chord, next_note: Note) -> Chord:
+        """
+        Creates the next Chord in the sequence. Based on the leaving Chord, the approaching Note, and the Key.
+        """
         pass
 
     @abstractmethod
     def first_chord(self, key: Key, note: Note) -> Chord:
+        """
+        Creates the first Chord of the sequence. Based on the approaching Note and the Key.
+        """
         pass
 
     @abstractmethod
     def end_cadence(self, key: Key, previous_chord: Chord) -> Stream:
+        """
+        Creates a cadence (makes the music sound better). Based on the leaving Chord and the Key.
+        """
         pass
 
     @staticmethod
     def build_chord(bass: Note, intervals: List[str]):
+        """
+        Builds a chord from a bass note and given intervals.
+        """
         chord = Chord([bass])
         previous = bass
         for interval in intervals:
@@ -34,19 +49,48 @@ class Rules(ABC):
 
     @staticmethod
     def build_major_triad(bass: Note) -> Chord:
+        """
+        Builds a major triad from a bass note.
+        """
         return Rules.build_chord(bass, ["M3", "m3"])
 
     @staticmethod
     def build_minor_triad(bass: Note) -> Chord:
+        """
+        Builds a minor triad from a bass note.
+        """
         return Rules.build_chord(bass, ["m3", "M3"])
 
     @staticmethod
     def build_diminished_triad(bass: Note) -> Chord:
+        """
+        Builds a diminished triad from a bass note.
+        """
         return Rules.build_chord(bass, ["m3", "m3"])
 
     @staticmethod
     def build_augmented_triad(bass: Note) -> Chord:
+        """
+        Builds an augmented triad from a bass note.
+        """
         return Rules.build_chord(bass, ["M3", "M3"])
+
+
+class Cypher(ABC):
+    def __init__(self):
+        """
+        A test_cypher allows for encoding and decoding. The process must be reversible.
+        """
+        pass
+
+    @abstractmethod
+    def decode(self, input_stream: Stream) -> List[Note]:
+        """
+        Decodes the input_stream. Should reverse the actions of creating the Chords.
+        :param input_stream: The Stream to decode.
+        :return:
+        """
+        pass
 
 
 class TriadBaroque(Rules):
@@ -180,7 +224,7 @@ class TriadBaroque(Rules):
         return out
 
 
-class TriadBaroqueCypher(TriadBaroque):
+class TriadBaroqueCypher(TriadBaroque, Cypher):
     def __init__(self, secret_key: Key):
         """
         Functionally the same to the TriadBaroque Rules, with the only exception being that the input note is the bass
@@ -220,7 +264,7 @@ class TriadBaroqueCypher(TriadBaroque):
     def end_cadence(self, key: Key, previous_chord: Chord) -> Stream:
         return super().end_cadence(self.secret_key, previous_chord)
 
-    def reverse(self, input_stream: Stream) -> List[Note]:
+    def decode(self, input_stream: Stream) -> List[Note]:
         out_notes: List[Note] = []
 
         for chord in input_stream.getElementsByClass(Chord)[:-2]:
