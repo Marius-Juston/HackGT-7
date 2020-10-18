@@ -12,8 +12,8 @@ from music21.key import Key
 
 NOTES_LIST = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
 CYPHER = musicgen.rules.TriadBaroqueCypher(Key("a"))
-min_quater_length = .25
-max_quater_length = 2
+min_quarter_length = .25
+max_quarter_length = 2
 
 
 # C:\Users\mariu\Anaconda3\envs\HackGT-7\Scripts\pygubu-designer.exe
@@ -76,7 +76,7 @@ class ImageAudioConverter:
             # .25 2
 
             quarter_length /= 255
-            quarter_length = quarter_length * (max_quater_length - min_quater_length) + min_quater_length
+            quarter_length = quarter_length * (max_quarter_length - min_quarter_length) + min_quarter_length
 
             quarter_length /= .25
             quarter_length = np.rint(quarter_length)
@@ -110,7 +110,7 @@ class ImageAudioConverter:
         volumes /= 127
         volumes *= 255
 
-        quarter_lengths = (quarter_lengths - min_quater_length) * 255 / (max_quater_length - min_quater_length)
+        quarter_lengths = (quarter_lengths - min_quarter_length) * 255 / (max_quarter_length - min_quarter_length)
 
         shape = (ImageAudioConverter.SPLIT_NUMBER[0], ImageAudioConverter.SPLIT_NUMBER[1], 1)
 
@@ -121,7 +121,7 @@ class ImageAudioConverter:
         new_image = np.concatenate((notes, quarter_lengths, volumes), axis=2)
         new_image = new_image.astype(np.uint8)
 
-        cv2.imwrite("ouput.png", cv2.cvtColor(new_image, cv2.COLOR_HLS2BGR))
+        cv2.imwrite("output.png", cv2.cvtColor(new_image, cv2.COLOR_HLS2BGR))
 
         print(new_image)
 
