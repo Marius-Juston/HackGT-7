@@ -8,8 +8,10 @@ import pygubu
 import skimage.measure
 
 import musicgen
+from music21.key import Key
 
 NOTES_LIST = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
+CYPHER = musicgen.rules.TriadBaroqueCypher(Key("a"))
 min_quater_length = .25
 max_quater_length = 2
 
@@ -55,7 +57,7 @@ class ImageAudioConverter:
         return skimage.measure.block_reduce(image, ImageAudioConverter.KERNEL['kernel_size'],
                                             ImageAudioConverter.KERNEL['kernel_type'])
 
-    def convert(self, transform_type='split'):
+    def convert_img_to_music(self, transform_type='split', cypher=CYPHER):
         if self.file is not None:
             image = self._read_image(self.file.name)
             image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
@@ -63,7 +65,7 @@ class ImageAudioConverter:
             if transform_type == 'kernel':
                 notes = self.kernel_image_transform(image)
             else:
-                notes, quater_length, volume = self.split_image_transform(image)
+                notes, quarter_length, volume = self.split_image_transform(image)
 
             notes /= 255
             notes *= (len(self.available_notes) - 1)
@@ -73,42 +75,50 @@ class ImageAudioConverter:
             # avg: 0.5 min: 0.25 3
             # .25 2
 
-            quater_length /= 255
-            quater_length = quater_length * (max_quater_length - min_quater_length) + min_quater_length
+            quarter_length /= 255
+            quarter_length = quarter_length * (max_quater_length - min_quater_length) + min_quater_length
 
-            quater_length /= .25
-            quater_length = np.rint(quater_length)
-            quater_length *= .25
+            quarter_length /= .25
+            quarter_length = np.rint(quarter_length)
+            quarter_length *= .25
 
             volume /= 255
             volume *= 127
 
-            chords = musicgen.create_chords([(note, vel) for note, vel in zip(notes, quater_length)])
+            chords = musicgen.create_chords([(note, vel, vol) for note, vel, vol in zip(notes, quarter_length, volume)], cypher)
+            chords.write("midi", "from_img.mid")
+            chords.write("xml", "from_img.xml")
 
-            self.decode_music(notes, quater_length, volume)
+        # print("Convert")
 
-            chords.write("midi", "out.mid")
-            chords.write("xml", "out.xml")
+    def convert_music_to_img(self, music_in: str, cypher: musicgen.rules.Cypher = CYPHER):
+        note_identifiers = musicgen.decode(music_in, cypher)
+        notes = []
+        quarter_lengths = []
+        volumes = []
+        for note_identifier in note_identifiers:
+            notes.append(note_identifier[0])
+            quarter_lengths.append(note_identifier[1])
+            volumes.append(note_identifier[2])
+        self.decode_music(np.asarray(notes), np.asarray(quarter_lengths), np.asarray(volumes))
 
-        print("Convert")
-
-    def decode_music(self, notes, quater_length, volume):
+    def decode_music(self, notes, quarter_lengths, volumes):
         notes = np.array([NOTES_LIST.index(note) for note in notes])
         notes = notes / (len(NOTES_LIST) - 1)
         notes *= 255
 
-        volume /= 127
-        volume *= 255
+        volumes /= 127
+        volumes *= 255
 
-        quater_length = (quater_length - min_quater_length) * 255 / (max_quater_length - min_quater_length)
+        quarter_lengths = (quarter_lengths - min_quater_length) * 255 / (max_quater_length - min_quater_length)
 
         shape = (ImageAudioConverter.SPLIT_NUMBER[0], ImageAudioConverter.SPLIT_NUMBER[1], 1)
 
         notes = notes.reshape(shape)
-        quater_length = quater_length.reshape(shape)
-        volume = volume.reshape(shape)
+        quarter_lengths = quarter_lengths.reshape(shape)
+        volumes = volumes.reshape(shape)
 
-        new_image = np.concatenate((notes, quater_length, volume), axis=2)
+        new_image = np.concatenate((notes, quarter_lengths, volumes), axis=2)
         new_image = new_image.astype(np.uint8)
 
         cv2.imwrite("ouput.png", cv2.cvtColor(new_image, cv2.COLOR_HLS2BGR))
@@ -159,6 +169,7 @@ if __name__ == '__main__':
 
     app.file = Test()
     # app.convert(transform_type='split')
-    app.convert()
+    app.convert_img_to_music()
+    app.convert_music_to_img('from_img.mid')
 
     # app.run()

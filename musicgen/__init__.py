@@ -14,7 +14,7 @@ NoteIdentifier = Union[Tuple[str, Union[float, int]], Tuple[str, Union[float, in
 def create_chords(notes_in: List[NoteIdentifier], ruleset: Rules = TriadBaroque()) -> Stream:
     """
     Creates the Stream of Chords made with the input notes. Notes are represented as (name, quarterLength) or
-    (name, quarterLength, volume) pairs.
+    (name, quarterLength, volumes) pairs.
 
     By default, the key is guessed.
     :param notes_in: A list of note identifiers that will be converted into
@@ -36,13 +36,15 @@ def create_chords(notes_in: List[NoteIdentifier], ruleset: Rules = TriadBaroque(
     return chord_creator.chordify(ruleset)
 
 
-def decode(xml_in: str, cypher: Cypher) -> List[NoteIdentifier]:
+def decode(music_in: str, cypher: Cypher) -> List[NoteIdentifier]:
     out: List[NoteIdentifier] = []
-    stream: Stream = converter.parse(xml_in)
-    notes = cypher.decode(stream)
+    stream: Stream = converter.parse(music_in)
+    notes = cypher.decode(stream.flat)
+    # print(notes)
+    # stream.show()
 
     for note in notes:
-        out.append((note.name, float(note.quarterLength), note.volume.velocity))
+        out.append((note.name, float(note.quarterLength), float(note.volume.velocity)))
 
     return out
 

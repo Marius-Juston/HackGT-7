@@ -125,9 +125,9 @@ class TriadBaroque(Rules):
                 "diminished": [7]
             },
             "minor": {
-                "major": [2, 3, 5, 6],
+                "major": [3, 5, 6],
                 "minor": [1, 4],
-                "diminished": [7]
+                "diminished": [2, 7]
             }
         }
         self.end_cadence_preferences = [
@@ -196,7 +196,9 @@ class TriadBaroque(Rules):
         elif degree in self.chord_degrees[1]:
             bass = tonic.transpose("M2")
             if key.mode == "major":
-                chord_builder = self.build_major_triad
+                chord_builder = self.build_minor_triad
+            else:
+                chord_builder = self.build_diminished_triad
 
         chord = chord_builder(bass)
         chord.quarterLength = note.quarterLength
