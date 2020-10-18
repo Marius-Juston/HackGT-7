@@ -132,7 +132,7 @@ class ImageAudioConverter:
         ratio_h = np.floor(d_height) * ImageAudioConverter.SPLIT_NUMBER[0]
         ratio_w = np.floor(d_width) * ImageAudioConverter.SPLIT_NUMBER[1]
 
-        image = cv2.resize(image, (int(ratio_h), int(ratio_w)))
+        image = cv2.resize(image, (int(ratio_w), int(ratio_h)))
 
         d_height = int(image.shape[0] / ImageAudioConverter.SPLIT_NUMBER[0])
         d_width = int(image.shape[1] / ImageAudioConverter.SPLIT_NUMBER[1])
