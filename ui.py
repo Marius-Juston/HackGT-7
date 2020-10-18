@@ -7,7 +7,6 @@ from tkinter.filedialog import askopenfile, asksaveasfile
 import cv2
 import numpy as np
 import pygubu
-import skimage.measure
 
 import musicgen
 from keys import *
@@ -22,17 +21,11 @@ min_vol = 20
 max_vol = 127
 
 
-# C:\Users\mariu\Anaconda3\envs\HackGT-7\Scripts\pygubu-designer.exe
-
 class ImageAudioConverter:
-    KERNEL = {"kernel_size": (4, 4, 3), "kernel_type": np.median}
-    CHORD_LENGTH = 20
     SPLIT_NUMBER = (16, 16)  # (rows, cols)
 
     def __init__(self, notes):
         self.platform = platform.system()
-
-        # os.environ['musicxmlPath'] = r'D:\Program Files\MuseScore 3\bin\MuseScore3.exe'
 
         # 1: Create a builder
         self.notes = notes
@@ -67,13 +60,8 @@ class ImageAudioConverter:
     def _read_image(self, img_loc):
         return cv2.imread(img_loc)
 
-    def kernel_image_transform(self, image):
-        return skimage.measure.block_reduce(image, ImageAudioConverter.KERNEL['kernel_size'],
-                                            ImageAudioConverter.KERNEL['kernel_type'])
-
     def convert(self):
         if self.file is not None:
-            # update row & col size
             ImageAudioConverter.SPLIT_NUMBER = (
                 self.builder.tkvariables['row_size'].get(), self.builder.tkvariables['col_size'].get())
             print("rows: ", ImageAudioConverter.SPLIT_NUMBER[0], "cols: ", ImageAudioConverter.SPLIT_NUMBER[1])
@@ -83,24 +71,16 @@ class ImageAudioConverter:
             else:
                 self.convert_music_to_img(self.file.name)
 
-    def convert_img_to_music(self, transform_type='split', cypher=CYPHER):
+    def convert_img_to_music(self, cypher=CYPHER):
         if self.file is not None:
             image = self._read_image(self.file.name)
-            # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-            if transform_type == 'kernel':
-                notes = self.kernel_image_transform(image)
-            else:
-                notes, quarter_length, volume = self.split_image_transform(image)
+            notes, quarter_length, volume = self.split_image_transform(image)
 
             notes /= 255
             notes *= (len(self.available_notes) - 1)
             notes = np.rint(notes).astype(int)
             notes = np.vectorize(lambda x: self.available_notes[x])(notes)
             print(notes.shape)
-
-            # avg: 0.5 min: 0.25 3
-            # .25 2
 
             quarter_length /= 255
             quarter_length = quarter_length * (max_quarter_length - min_quarter_length) + min_quarter_length
@@ -115,16 +95,12 @@ class ImageAudioConverter:
             chords = musicgen.create_chords([(note, vel, vol) for note, vel, vol in zip(notes, quarter_length, volume)],
                                             cypher)
 
-            # cv2.imwrite("output.png", cv2.cvtColor(new_image, cv2.COLOR_RGB2BGR))
             file_types = [('Midi', '*.mid')]
             file = asksaveasfile(filetypes=file_types, defaultextension=file_types)
 
             if file is not None:
                 chords.write("midi", file.name)
                 self.open_file_in_system(file.name)
-            # chords.write("xml", "from_img.xml")
-
-        print("Convert")
 
     def convert_music_to_img(self, music_in: str, cypher: musicgen.rules.Cypher = CYPHER):
         note_identifiers = musicgen.decode(music_in, cypher)
@@ -142,8 +118,6 @@ class ImageAudioConverter:
         notes = notes / (len(NOTES_LIST) - 1)
         notes *= 255
 
-        # volumes /= 127
-        # volumes *= 255
         volumes = (volumes - min_vol) * 255 / (max_vol - min_vol)
 
         quarter_lengths = (quarter_lengths - min_quarter_length) * 255 / (max_quarter_length - min_quarter_length)
@@ -157,21 +131,12 @@ class ImageAudioConverter:
         new_image = np.concatenate((notes, quarter_lengths, volumes), axis=2)
         new_image = new_image.astype(np.uint8)
 
-        # cv2.imwrite("output.png", cv2.cvtColor(new_image, cv2.COLOR_RGB2BGR))
         file_types = [('PNG', "*.png"), ('JPEG', '*.jpeg')]
         file = asksaveasfile(filetypes=file_types, defaultextension=file_types)
 
         if file is not None:
             cv2.imwrite(file.name, new_image)
             self.open_file_in_system(file.name)
-
-        # print(new_image)
-
-    def play_music(self):
-        print("Play music")
-
-    def validate_location(self):
-        print("Hello")
 
     def split_image_transform(self, image):
         note = []
@@ -210,14 +175,4 @@ class ImageAudioConverter:
 
 if __name__ == '__main__':
     app = ImageAudioConverter(NOTES_LIST)
-
-    # class Test:
-    #     def __init__(self):
-    #         self.name = 'images/Mona_Lisa.jpg'
-    #
-    #
-    # app.file = Test()
-    # app.convert_img_to_music()
-    # app.convert_music_to_img('from_img.mid')
-    #
     app.run()
