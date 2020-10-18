@@ -1,6 +1,5 @@
 from music21.key import Key
 
-
 Cb_MAJOR = Key("C-")
 Gb_MAJOR = Key("G-")
 Db_MAJOR = Key("D-")

@@ -22,8 +22,8 @@ class ChordCreator:
             self.inputStream.append(note)
         self.key: Key = self.inputStream.analyze('key')
 
-        print(
-            f"Guessed key: {self.key}, Confidence: {self.key.correlationCoefficient}, Other possible keys: {self.key.alternateInterpretations}")
+        # print(
+        #     f"Guessed key: {self.key}, Confidence: {self.key.correlationCoefficient}, Other possible keys: {self.key.alternateInterpretations}")
 
     def chordify(self, rules: Rules = TriadBaroque()) -> Stream:
         """

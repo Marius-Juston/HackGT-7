@@ -1,9 +1,9 @@
 from typing import List, Tuple, Union
 
+from music21 import converter
 from music21.key import Key
 from music21.note import Note
 from music21.stream import Stream
-from music21 import converter
 
 from musicgen.chordcreator import ChordCreator
 from musicgen.rules import Rules, TriadBaroque, TriadBaroqueCypher, Cypher
@@ -52,6 +52,5 @@ def decode(music_in: str, cypher: Cypher) -> List[NoteIdentifier]:
 if __name__ == '__main__':
     test_cypher = TriadBaroqueCypher(Key('a'))
     test = create_chords([("B", 1, 10), ("F", 1), ("A", 1), ("G#", 1), ("D", 1, 10), ("C", 1.0), ("B", 1), ("E", 1)],
-                  TriadBaroqueCypher(Key('a')))
+                         TriadBaroqueCypher(Key('a')))
     print(test_cypher.decode(test))
-

@@ -174,7 +174,6 @@ class TriadBaroque(Rules):
         chord.quarterLength = next_note.quarterLength
         chord.volume = next_note.volume
 
-
         return chord
 
     def first_chord(self, key: Key, note: Note) -> Chord:
