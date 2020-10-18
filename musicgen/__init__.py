@@ -37,6 +37,12 @@ def create_chords(notes_in: List[NoteIdentifier], ruleset: Rules = TriadBaroque(
 
 
 def decode(music_in: str, cypher: Cypher) -> List[NoteIdentifier]:
+    """
+    Extracts from a *.md file the notes and it's associated information and creates a list
+    :param music_in: the music file to extract the infromation from
+    :param cypher: the cypher to use to decode the file
+    :return: a list of associated note, quarter_length and volume
+    """
     out: List[NoteIdentifier] = []
     stream: Stream = converter.parse(music_in)
     notes = cypher.decode(stream.flat)
