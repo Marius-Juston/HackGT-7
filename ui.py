@@ -9,9 +9,11 @@ import skimage.measure
 
 import musicgen
 from music21.key import Key
+from keys import *
 
-NOTES_LIST = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B']
-CYPHER = musicgen.rules.TriadBaroqueCypher(Key("a"))
+KEY = A_MINOR
+NOTES_LIST = KEY.getPitches()
+CYPHER = musicgen.rules.TriadBaroqueCypher(KEY)
 min_quarter_length = .25
 max_quarter_length = 2
 
