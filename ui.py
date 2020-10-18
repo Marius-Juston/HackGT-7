@@ -102,7 +102,7 @@ class ImageAudioConverter:
 
         quater_length = (quater_length - min_quater_length) * 255 / (max_quater_length - min_quater_length)
 
-        shape = (ImageAudioConverter.SPLIT_NUMBER[0] + 1, ImageAudioConverter.SPLIT_NUMBER[1] + 1, 1)
+        shape = (ImageAudioConverter.SPLIT_NUMBER[0], ImageAudioConverter.SPLIT_NUMBER[1], 1)
 
         notes = notes.reshape(shape)
         quater_length = quater_length.reshape(shape)
@@ -126,8 +126,16 @@ class ImageAudioConverter:
         quater_length = []
         volume = []
 
-        d_height = image.shape[0] // ImageAudioConverter.SPLIT_NUMBER[0]
-        d_width = image.shape[1] // ImageAudioConverter.SPLIT_NUMBER[1]
+        d_height = image.shape[0] / ImageAudioConverter.SPLIT_NUMBER[0]
+        d_width = image.shape[1] / ImageAudioConverter.SPLIT_NUMBER[1]
+
+        ratio_h = np.floor(d_height) * ImageAudioConverter.SPLIT_NUMBER[0]
+        ratio_w = np.floor(d_width) * ImageAudioConverter.SPLIT_NUMBER[0]
+
+        image = cv2.resize(image, (int(ratio_h), int(ratio_w)))
+
+        d_height = int(image.shape[0] / ImageAudioConverter.SPLIT_NUMBER[0])
+        d_width = int(image.shape[1] / ImageAudioConverter.SPLIT_NUMBER[1])
 
         for r in range(0, image.shape[0], d_height):
             for c in range(0, image.shape[1], d_width):
