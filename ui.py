@@ -1,5 +1,7 @@
 import os
+import subprocess
 from io import TextIOWrapper
+import platform
 from tkinter.filedialog import askopenfile, asksaveasfile
 
 import cv2
@@ -25,6 +27,8 @@ class ImageAudioConverter:
     SPLIT_NUMBER = (16, 16)  # (rows, cols)
 
     def __init__(self, notes):
+        self.platform = platform.system()
+
         # os.environ['musicxmlPath'] = r'D:\Program Files\MuseScore 3\bin\MuseScore3.exe'
 
         # 1: Create a builder
@@ -114,6 +118,7 @@ class ImageAudioConverter:
 
             if file is not None:
                 chords.write("midi", file.name)
+                self.open_file_in_system(file.name)
             # chords.write("xml", "from_img.xml")
 
         print("Convert")
@@ -154,6 +159,7 @@ class ImageAudioConverter:
 
         if file is not None:
             cv2.imwrite(file.name, new_image)
+            self.open_file_in_system(file.name)
 
         # print(new_image)
 
@@ -188,6 +194,14 @@ class ImageAudioConverter:
                 volume.append(np.median(crop[:, :, 2]))
 
         return np.array(note), np.array(quarter_length), np.array(volume)
+
+    def open_file_in_system(self, file):
+        if self.platform == 'Darwin':  # macOS
+            subprocess.call(('open', file))
+        elif self.platform == 'Windows':  # Windows
+            os.startfile(file)
+        else:  # linux variants
+            subprocess.call(('xdg-open', file))
 
 
 if __name__ == '__main__':
