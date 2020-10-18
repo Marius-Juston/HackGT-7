@@ -6,10 +6,8 @@ import cv2
 import numpy as np
 import pygubu
 import skimage.measure
-from music21.note import Note
 
 import musicgen
-from music21.key import Key
 from keys import *
 
 KEY = A_MINOR
@@ -66,7 +64,7 @@ class ImageAudioConverter:
         if self.file.name.endswith('jpg') or self.file.name.endswith('png'):
             self.convert_img_to_music()
         else:
-            self.convert_music_to_img()
+            self.convert_music_to_img(self.file.name)
 
     def convert_img_to_music(self, transform_type='split', cypher=CYPHER):
         if self.file is not None:

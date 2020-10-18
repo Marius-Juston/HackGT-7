@@ -1,9 +1,9 @@
 from typing import List
 
+from music21.chord import Chord
 from music21.key import Key
 from music21.note import Note
 from music21.stream import Stream
-from music21.chord import Chord
 
 from musicgen.rules import Rules, TriadBaroque
 
