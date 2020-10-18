@@ -4,6 +4,8 @@
 SoundsAwful provides a novel method for cryptographically encoding pictures as music and reversing said encryption within a simple python GUI.
 
 ## Instructions
+
+The main program is located in ui.py.
 To encode an image, select the image via the file selection dialog and click Convert. After the program finishes its conversion, you will be prompted to save the resulting midi.
 
 The process is nearly the same for a midi. Select the file via the dialog and similarly select Convert-- you will be prompted to save the image outputted from the decryption process.
