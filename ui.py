@@ -1,6 +1,6 @@
 import os
 from io import TextIOWrapper
-from tkinter.filedialog import askopenfile
+from tkinter.filedialog import askopenfile, asksaveasfile
 
 import cv2
 import numpy as np
@@ -68,7 +68,7 @@ class ImageAudioConverter:
         if self.file is not None:
             # update row & col size
             ImageAudioConverter.SPLIT_NUMBER = (
-            self.builder.tkvariables['row_size'].get(), self.builder.tkvariables['col_size'].get())
+                self.builder.tkvariables['row_size'].get(), self.builder.tkvariables['col_size'].get())
             print("rows: ", ImageAudioConverter.SPLIT_NUMBER[0], "cols: ", ImageAudioConverter.SPLIT_NUMBER[1])
 
             if self.file.name.endswith('jpg') or self.file.name.endswith('png'):
@@ -107,8 +107,14 @@ class ImageAudioConverter:
 
             chords = musicgen.create_chords([(note, vel, vol) for note, vel, vol in zip(notes, quarter_length, volume)],
                                             cypher)
-            chords.write("midi", "from_img.mid")
-            chords.write("xml", "from_img.xml")
+
+            # cv2.imwrite("output.png", cv2.cvtColor(new_image, cv2.COLOR_RGB2BGR))
+            file_types = [('Midi', '*.mid')]
+            file = asksaveasfile(filetypes=file_types, defaultextension=file_types)
+
+            if file is not None:
+                chords.write("midi", file.name)
+            # chords.write("xml", "from_img.xml")
 
         print("Convert")
 
@@ -143,7 +149,11 @@ class ImageAudioConverter:
         new_image = new_image.astype(np.uint8)
 
         # cv2.imwrite("output.png", cv2.cvtColor(new_image, cv2.COLOR_RGB2BGR))
-        cv2.imwrite("output.png", new_image)
+        file_types = [('PNG', "*.png"), ('JPEG', '*.jpeg')]
+        file = asksaveasfile(filetypes=file_types, defaultextension=file_types)
+
+        if file is not None:
+            cv2.imwrite(file.name, new_image)
 
         # print(new_image)
 
