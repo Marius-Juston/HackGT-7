@@ -22,7 +22,7 @@ max_quarter_length = 2
 class ImageAudioConverter:
     KERNEL = {"kernel_size": (4, 4, 3), "kernel_type": np.median}
     CHORD_LENGTH = 20
-    SPLIT_NUMBER = (16, 16)  # (rows, cols)
+    SPLIT_NUMBER = (64, 96)  # (rows, cols)
 
     def __init__(self, notes):
         # os.environ['musicxmlPath'] = r'D:\Program Files\MuseScore 3\bin\MuseScore3.exe'
@@ -37,6 +37,8 @@ class ImageAudioConverter:
 
         # 3: Create the mainwindow
         self.mainwindow = builder.get_object('mainwindow')
+        self.builder.tkvariables['row_size'].set(ImageAudioConverter.SPLIT_NUMBER[0])
+        self.builder.tkvariables['col_size'].set(ImageAudioConverter.SPLIT_NUMBER[1])
 
         builder.connect_callbacks(self)
         self.file = None
@@ -69,7 +71,7 @@ class ImageAudioConverter:
     def convert_img_to_music(self, transform_type='split', cypher=CYPHER):
         if self.file is not None:
             image = self._read_image(self.file.name)
-            image = cv2.cvtColor(image, cv2.COLOR_BGR2HLS)
+            # image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
             if transform_type == 'kernel':
                 notes = self.kernel_image_transform(image)
@@ -84,6 +86,7 @@ class ImageAudioConverter:
             notes *= (len(self.available_notes) - 1)
             notes = np.rint(notes).astype(int)
             notes = np.vectorize(lambda x: self.available_notes[x])(notes)
+            print (notes.shape)
 
             # avg: 0.5 min: 0.25 3
             # .25 2
@@ -135,7 +138,8 @@ class ImageAudioConverter:
         new_image = np.concatenate((notes, quarter_lengths, volumes), axis=2)
         new_image = new_image.astype(np.uint8)
 
-        cv2.imwrite("output.png", cv2.cvtColor(new_image, cv2.COLOR_HLS2BGR))
+        # cv2.imwrite("output.png", cv2.cvtColor(new_image, cv2.COLOR_RGB2BGR))
+        cv2.imwrite("output.png", new_image)
 
         # print(new_image)
 
@@ -185,4 +189,4 @@ if __name__ == '__main__':
     app.convert_img_to_music()
     app.convert_music_to_img('from_img.mid')
 
-    app.run()
+    #app.run()
