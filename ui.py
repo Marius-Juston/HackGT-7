@@ -22,7 +22,7 @@ max_quarter_length = 2
 class ImageAudioConverter:
     KERNEL = {"kernel_size": (4, 4, 3), "kernel_type": np.median}
     CHORD_LENGTH = 20
-    SPLIT_NUMBER = (64, 96)  # (rows, cols)
+    SPLIT_NUMBER = (16, 16)  # (rows, cols)
 
     def __init__(self, notes):
         # os.environ['musicxmlPath'] = r'D:\Program Files\MuseScore 3\bin\MuseScore3.exe'
@@ -86,7 +86,7 @@ class ImageAudioConverter:
             notes *= (len(self.available_notes) - 1)
             notes = np.rint(notes).astype(int)
             notes = np.vectorize(lambda x: self.available_notes[x])(notes)
-            print (notes.shape)
+            print(notes.shape)
 
             # avg: 0.5 min: 0.25 3
             # .25 2
@@ -151,7 +151,7 @@ class ImageAudioConverter:
 
     def split_image_transform(self, image):
         note = []
-        quater_length = []
+        quarter_length = []
         volume = []
 
         d_height = image.shape[0] / ImageAudioConverter.SPLIT_NUMBER[0]
@@ -170,10 +170,10 @@ class ImageAudioConverter:
                 crop = image[r:r + d_height, c:c + d_width]
 
                 note.append(np.median(crop[:, :, 0]))
-                quater_length.append(np.median(crop[:, :, 1]))
+                quarter_length.append(np.median(crop[:, :, 1]))
                 volume.append(np.median(crop[:, :, 2]))
 
-        return np.array(note), np.array(quater_length), np.array(volume)
+        return np.array(note), np.array(quarter_length), np.array(volume)
 
 
 if __name__ == '__main__':
@@ -189,4 +189,4 @@ if __name__ == '__main__':
     app.convert_img_to_music()
     app.convert_music_to_img('from_img.mid')
 
-    #app.run()
+    # app.run()
