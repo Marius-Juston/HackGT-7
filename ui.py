@@ -1,7 +1,7 @@
 import os
+import platform
 import subprocess
 from io import TextIOWrapper
-import platform
 from tkinter.filedialog import askopenfile, asksaveasfile
 
 import cv2
@@ -17,6 +17,9 @@ NOTES_LIST = list(map(lambda note: note.name[0], KEY.getPitches()))
 CYPHER = musicgen.rules.TriadBaroqueCypher(KEY)
 min_quarter_length = .25
 max_quarter_length = 2
+
+min_vol = 20
+max_vol = 127
 
 
 # C:\Users\mariu\Anaconda3\envs\HackGT-7\Scripts\pygubu-designer.exe
@@ -107,7 +110,7 @@ class ImageAudioConverter:
             quarter_length *= .25
 
             volume /= 255
-            volume *= 127
+            quarter_length = quarter_length * (max_vol - min_vol) + min_vol
 
             chords = musicgen.create_chords([(note, vel, vol) for note, vel, vol in zip(notes, quarter_length, volume)],
                                             cypher)
@@ -139,8 +142,9 @@ class ImageAudioConverter:
         notes = notes / (len(NOTES_LIST) - 1)
         notes *= 255
 
-        volumes /= 127
-        volumes *= 255
+        # volumes /= 127
+        # volumes *= 255
+        volumes = (volumes - min_vol) * 255 / (max_vol - min_vol)
 
         quarter_lengths = (quarter_lengths - min_quarter_length) * 255 / (max_quarter_length - min_quarter_length)
 
