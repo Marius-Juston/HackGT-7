@@ -27,7 +27,7 @@ Python GUI that allows you convert an image to a *.mid music file and also allow
 
 
 class ImageAudioConverter:
-    SPLIT_NUMBER = (16, 16)  # (rows, cols)
+    SPLIT_NUMBER = (64, 64)  # (rows, cols)
 
     def __init__(self, notes: List[str]) -> None:
         """
