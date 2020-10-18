@@ -3,13 +3,15 @@ from typing import List, Tuple, Union
 from music21.key import Key
 from music21.note import Note
 from music21.stream import Stream
+from music21 import converter
 
 from musicgen.chordcreator import ChordCreator
-from musicgen.rules import Rules, TriadBaroque, TriadBaroqueCypher
+from musicgen.rules import Rules, TriadBaroque, TriadBaroqueCypher, Cypher
+
+NoteIdentifier = Union[Tuple[str, Union[float, int]], Tuple[str, Union[float, int], float]]
 
 
-def create_chords(notes_in: List[Union[Tuple[str, Union[float, int]], Tuple[str, Union[float, int], float]]],
-                  ruleset: Rules = TriadBaroque()) -> Stream:
+def create_chords(notes_in: List[NoteIdentifier], ruleset: Rules = TriadBaroque()) -> Stream:
     """
     Creates the Stream of Chords made with the input notes. Notes are represented as (name, quarterLength) or
     (name, quarterLength, volume) pairs.
@@ -30,15 +32,24 @@ def create_chords(notes_in: List[Union[Tuple[str, Union[float, int]], Tuple[str,
         notes_out.append(note_out)
 
     chord_creator = ChordCreator(notes_out)
-    # chord_creator.inputStream.show()
-    # chord_creator.chordify().show()
+
     return chord_creator.chordify(ruleset)
 
 
+def decode(xml_in: str, cypher: Cypher) -> List[NoteIdentifier]:
+    out: List[NoteIdentifier] = []
+    stream: Stream = converter.parse(xml_in)
+    notes = cypher.decode(stream)
+
+    for note in notes:
+        out.append((note.name, float(note.quarterLength), note.volume.velocity))
+
+    return out
+
+
 if __name__ == '__main__':
-    # os.environ['musicxmlPath'] = r'L:\Program Files\MuseScore 3\bin\MuseScore3.exe'
-    cypher = TriadBaroqueCypher(Key('a'))
+    test_cypher = TriadBaroqueCypher(Key('a'))
     test = create_chords([("B", 1, 10), ("F", 1), ("A", 1), ("G#", 1), ("D", 1, 10), ("C", 1.0), ("B", 1), ("E", 1)],
                   TriadBaroqueCypher(Key('a')))
-    print(cypher.reverse(test))
+    print(test_cypher.decode(test))
 
