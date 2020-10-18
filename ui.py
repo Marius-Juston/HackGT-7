@@ -49,11 +49,13 @@ class ImageAudioConverter:
     def select_file(self):
         current_dir = os.getcwd()
 
-        self.file: TextIOWrapper = askopenfile(initialdir=current_dir, filetypes=(('Images', "*.jpg;*.png"),))
+        self.file: TextIOWrapper = askopenfile(initialdir=current_dir,
+                                               filetypes=(('Images', "*.jpg;*.png"), ("Audio", "*.mid")))
 
-        self.builder.tkvariables['file_location_var'].set(os.path.basename(self.file.name))
+        if self.file is not None:
+            self.builder.tkvariables['file_location_var'].set(os.path.basename(self.file.name))
 
-        print(self.file.name)
+            print(self.file.name)
 
     def _read_image(self, img_loc):
         return cv2.imread(img_loc)
@@ -63,10 +65,16 @@ class ImageAudioConverter:
                                             ImageAudioConverter.KERNEL['kernel_type'])
 
     def convert(self):
-        if self.file.name.endswith('jpg') or self.file.name.endswith('png'):
-            self.convert_img_to_music()
-        else:
-            self.convert_music_to_img(self.file.name)
+        if self.file is not None:
+            # update row & col size
+            ImageAudioConverter.SPLIT_NUMBER = (
+            self.builder.tkvariables['row_size'].get(), self.builder.tkvariables['col_size'].get())
+            print("rows: ", ImageAudioConverter.SPLIT_NUMBER[0], "cols: ", ImageAudioConverter.SPLIT_NUMBER[1])
+
+            if self.file.name.endswith('jpg') or self.file.name.endswith('png'):
+                self.convert_img_to_music()
+            else:
+                self.convert_music_to_img(self.file.name)
 
     def convert_img_to_music(self, transform_type='split', cypher=CYPHER):
         if self.file is not None:
@@ -78,15 +86,11 @@ class ImageAudioConverter:
             else:
                 notes, quarter_length, volume = self.split_image_transform(image)
 
-            # update row & col size
-            SPLIT_NUMBER = (self.builder.tkvariables['row_size'].get(), self.builder.tkvariables['col_size'].get())
-            print("rows: ", SPLIT_NUMBER[0], "cols: ", SPLIT_NUMBER[1])
-
             notes /= 255
             notes *= (len(self.available_notes) - 1)
             notes = np.rint(notes).astype(int)
             notes = np.vectorize(lambda x: self.available_notes[x])(notes)
-            print (notes.shape)
+            print(notes.shape)
 
             # avg: 0.5 min: 0.25 3
             # .25 2
