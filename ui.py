@@ -110,7 +110,7 @@ class ImageAudioConverter:
             quarter_length *= .25
 
             volume /= 255
-            quarter_length = quarter_length * (max_vol - min_vol) + min_vol
+            volume = volume * (max_vol - min_vol) + min_vol
 
             chords = musicgen.create_chords([(note, vel, vol) for note, vel, vol in zip(notes, quarter_length, volume)],
                                             cypher)
@@ -211,14 +211,13 @@ class ImageAudioConverter:
 if __name__ == '__main__':
     app = ImageAudioConverter(NOTES_LIST)
 
-
-    class Test:
-        def __init__(self):
-            self.name = 'images/Mona_Lisa.jpg'
-
-
-    app.file = Test()
-    app.convert_img_to_music()
-    app.convert_music_to_img('from_img.mid')
-
-    # app.run()
+    # class Test:
+    #     def __init__(self):
+    #         self.name = 'images/Mona_Lisa.jpg'
+    #
+    #
+    # app.file = Test()
+    # app.convert_img_to_music()
+    # app.convert_music_to_img('from_img.mid')
+    #
+    app.run()
