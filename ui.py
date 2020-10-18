@@ -27,6 +27,8 @@ class ImageAudioConverter:
     SPLIT_NUMBER = (16, 16)  # (rows, cols)
 
     def __init__(self, notes):
+        # os.environ['musicxmlPath'] = r'D:\Program Files\MuseScore 3\bin\MuseScore3.exe'
+
         # 1: Create a builder
         self.notes = notes
         self.available_notes = notes
@@ -76,6 +78,10 @@ class ImageAudioConverter:
             else:
                 notes, quarter_length, volume = self.split_image_transform(image)
 
+            # update row & col size
+            SPLIT_NUMBER = (self.builder.tkvariables['row_size'].get(), self.builder.tkvariables['col_size'].get())
+            print("rows: ", SPLIT_NUMBER[0], "cols: ", SPLIT_NUMBER[1])
+
             notes /= 255
             notes *= (len(self.available_notes) - 1)
             notes = np.rint(notes).astype(int)
@@ -94,11 +100,12 @@ class ImageAudioConverter:
             volume /= 255
             volume *= 127
 
-            chords = musicgen.create_chords([(note, vel, vol) for note, vel, vol in zip(notes, quarter_length, volume)], cypher)
+            chords = musicgen.create_chords([(note, vel, vol) for note, vel, vol in zip(notes, quarter_length, volume)],
+                                            cypher)
             chords.write("midi", "from_img.mid")
             chords.write("xml", "from_img.xml")
 
-        # print("Convert")
+        print("Convert")
 
     def convert_music_to_img(self, music_in: str, cypher: musicgen.rules.Cypher = CYPHER):
         note_identifiers = musicgen.decode(music_in, cypher)
@@ -132,7 +139,7 @@ class ImageAudioConverter:
 
         cv2.imwrite("output.png", cv2.cvtColor(new_image, cv2.COLOR_HLS2BGR))
 
-        print(new_image)
+        # print(new_image)
 
     def play_music(self):
         print("Play music")
@@ -177,8 +184,7 @@ if __name__ == '__main__':
 
 
     app.file = Test()
-    # app.convert(transform_type='split')
     app.convert_img_to_music()
     app.convert_music_to_img('from_img.mid')
 
-    # app.run()
+    app.run()
