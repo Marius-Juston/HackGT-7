@@ -9,16 +9,16 @@ from musicgen.rules import Rules, TriadBaroque
 
 
 class ChordCreator:
-    def __init__(self, inputNotes: List[Note]):
+    def __init__(self, input_notes: List[Note]):
         """
         ChordCreator is a utility class that can supply a Rules instance with a key and notes to create chords out of.
 
-        :param inputNotes: A list of music21.note.Note objects. Chords get fitted to these Notes.
+        :param input_notes: A list of music21.note.Note objects. Chords get fitted to these Notes.
         """
-        self.inputNotes: List[Note] = inputNotes
+        self.inputNotes: List[Note] = input_notes
 
         self.inputStream: Stream = Stream()
-        for note in inputNotes:
+        for note in input_notes:
             self.inputStream.append(note)
         self.key: Key = self.inputStream.analyze('key')
 
